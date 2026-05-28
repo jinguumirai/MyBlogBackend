@@ -1,4 +1,4 @@
-package net.myblog;
+package net.myblog.blog;
 
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
