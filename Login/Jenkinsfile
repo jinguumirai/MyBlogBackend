@@ -39,11 +39,13 @@ pipeline {
 
         stage('3. 构建Docker镜像') {
             steps {
-                script {
-                    // 调用项目根目录下的 Dockerfile 构建镜像
-                    docker.build("${FULL_IMAGE_NAME}:${IMAGE_TAG}")
+                    script {
+                        docker.build(
+                            "${FULL_IMAGE_NAME}:${IMAGE_TAG}",
+                            "-f Login/Dockerfile ."
+                        )
+                    }
                 }
-            }
         }
 
         stage('4. 推送镜像到仓库') {
