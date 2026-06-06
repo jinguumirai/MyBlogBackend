@@ -20,7 +20,7 @@ pipeline {
     tools {
         // 这里的名称必须与 Jenkins "全局工具配置" 中的名称严格一致
         maven 'Maven-3.9.11'
-        jdk 'JDK-24'
+        jdk 'JDK-25'
     }
 
     stages {
