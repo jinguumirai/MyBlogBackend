@@ -1,4 +1,7 @@
-.idea
 
 **/target
 
+**/application-prod.yml
+
+.agents
+/.idea/

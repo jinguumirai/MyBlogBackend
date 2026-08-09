@@ -5,7 +5,7 @@ pipeline {
         // ================= 配置区 =================
         // 镜像仓库地址 (以阿里云ACR为例，也可换成Harbor或DockerHub)
         REGISTRY = 'mirai-server.net:56789'
-        NAMESPACE = 'dev'
+        NAMESPACE = 'prod'
         IMAGE_NAME = 'login-service'
 
         // 使用 Jenkins Build Number 作为镜像 Tag
@@ -14,6 +14,9 @@ pipeline {
 
         // Jenkins 中配置的凭证 ID (需在Jenkins后台提前创建)
         DOCKER_CREDENTIALS_ID = 'harbor-credential'
+
+        // Jenkins "Managed files" 中的生产环境配置文件 ID
+        APP_CONFIG_FILE_ID = 'login-application-prod'
         // ==========================================
     }
 
@@ -30,10 +33,17 @@ pipeline {
             }
         }
 
-        stage('2. 编译与单元测试') {
+        stage('2. 读取生产环境配置并编译') {
             steps {
-                // 编译并运行测试。如果为了加快速度，可改为 mvn clean package -DskipTests
-                sh 'mvn clean package'
+                configFileProvider([
+                    configFile(
+                        fileId: env.APP_CONFIG_FILE_ID,
+                        targetLocation: 'Login/src/main/resources/application-prod.yml'
+                    )
+                ]) {
+                    // 配置文件仅在此块中提供，并在打包时加入 Login JAR
+                    sh 'mvn clean package'
+                }
             }
         }
 
