@@ -1,0 +1,92 @@
+pipeline {
+    agent any // 如果有多个节点，可指定 label，如 agent { label 'docker-node' }
+
+    environment {
+        // ================= 配置区 =================
+        // 镜像仓库地址 (以阿里云ACR为例，也可换成Harbor或DockerHub)
+        REGISTRY = 'mirai-server.net:56789'
+        NAMESPACE = 'prod'
+        IMAGE_NAME = 'gateway-service'
+
+        // 使用 Jenkins Build Number 作为镜像 Tag
+        IMAGE_TAG = "${BUILD_NUMBER}"
+        FULL_IMAGE_NAME = "${REGISTRY}/${NAMESPACE}/${IMAGE_NAME}"
+
+        // Jenkins 中配置的凭证 ID (需在Jenkins后台提前创建)
+        DOCKER_CREDENTIALS_ID = 'harbor-credential'
+
+        // Jenkins "Managed files" 中的生产环境配置文件 ID
+        APP_CONFIG_FILE_ID = 'gateway-application-prod'
+        // ==========================================
+    }
+
+    tools {
+        // 这里的名称必须与 Jenkins "全局工具配置" 中的名称严格一致
+        maven 'Maven-3.9.11'
+        jdk 'JDK-25'
+    }
+
+    stages {
+        stage('1. 拉取代码') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('2. 读取生产环境配置并编译') {
+            steps {
+                configFileProvider([
+                    configFile(
+                        fileId: env.APP_CONFIG_FILE_ID,
+                        targetLocation: 'Gateway/src/main/resources/application-prod.yml'
+                    )
+                ]) {
+                    // Gateway 未加入根 pom 的 modules，因此直接指定其 pom 进行打包
+                    // repackage 用于生成可通过 java -jar 启动的 Spring Boot JAR
+                    sh 'mvn -f Gateway/pom.xml clean package org.springframework.boot:spring-boot-maven-plugin:3.4.5:repackage'
+                }
+            }
+        }
+
+        stage('3. 构建Docker镜像') {
+            steps {
+                script {
+                    docker.build(
+                        "${FULL_IMAGE_NAME}:${IMAGE_TAG}",
+                        "-f Gateway/Dockerfile ."
+                    )
+                }
+            }
+        }
+
+        stage('4. 推送镜像到仓库') {
+            steps {
+                script {
+                    docker.withRegistry("http://${REGISTRY}", DOCKER_CREDENTIALS_ID) {
+                        def customImage = docker.image("${FULL_IMAGE_NAME}:${IMAGE_TAG}")
+                        customImage.push()
+
+                        // 如果是 master/main 分支，额外打一个 latest 标签
+                        if (env.BRANCH_NAME == 'master' || env.BRANCH_NAME == 'main') {
+                            customImage.push('latest')
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo '✅ 构建成功！'
+            // 这里可以添加钉钉/企业微信/邮件通知插件的脚本
+        }
+        failure {
+            echo '❌ 构建或部署失败，请检查日志！'
+        }
+        always {
+            // 清理 Jenkins 工作空间，防止磁盘爆满
+            cleanWs()
+        }
+    }
+}
