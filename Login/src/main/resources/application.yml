@@ -12,18 +12,6 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQL8Dialect
-  mail:
-    host: smtp.dlut.edu.cn
-    port: 465
-    username: jinguumirai@mail.dlut.edu.cn
-    password: Iloveyemeng1314
-    properties:
-      mail.smtp.auth: true
-      mail.smtp.ssl.enable: true        # ★ Implicit SSL/TLS を有効化（465はこれ）
-      mail.smtp.starttls.enable: false  # ★ STARTTLS は不要（587で使うもの）
-      mail.smtp.socketFactory.port: 465
-      mail.smtp.socketFactory.class: javax.net.ssl.SSLSocketFactory
-      mail.smtp.socketFactory.fallback: false
 
 springdoc:
   swagger-ui:

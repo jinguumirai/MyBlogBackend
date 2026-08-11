@@ -1,9 +1,0 @@
-app:
-  web-url: https://mirai-server-dev.net/api
-
-spring:
-  datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://mirai-server.net:3306/blog_system?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
-    username: root
-    password: Iloveyemeng1314!
