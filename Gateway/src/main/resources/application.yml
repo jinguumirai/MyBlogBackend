@@ -4,10 +4,3 @@ server:
 spring:
   profiles:
     active: dev
-  cloud:
-    gateway:
-      routes:
-        - id: baidu_route
-          uri: https://www.baidu.com
-          predicates:
-            - Path=/**
