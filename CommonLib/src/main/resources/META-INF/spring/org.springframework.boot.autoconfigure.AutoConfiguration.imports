@@ -1,0 +1,4 @@
+net.myBlog.common.configs.AuditAutoConfiguration
+net.myBlog.common.configs.ExceptionAutoConfiguration
+net.myBlog.common.configs.JwtAutoConfiguration
+net.myBlog.common.configs.MybatisAuditAutoConfiguration
