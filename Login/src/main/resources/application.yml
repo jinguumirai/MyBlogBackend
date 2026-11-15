@@ -4,6 +4,10 @@ server:
 spring:
   profiles:
     active: dev
+  messages:
+    basename: i18n/messages/messages
+    encoding: UTF-8
+    fallback-to-system-locale: false
 
   jpa:
     hibernate:
@@ -21,3 +25,8 @@ springdoc:
   api-docs:
     path: /v3/api-docs
     enabled: false
+
+# トークンCookieの既定設定(本番はHTTPSなのでSecure=true)。
+# devプロファイルでは application-dev.yml で false に上書きする。
+jwt:
+  cookie-secure: true

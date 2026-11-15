@@ -3,51 +3,30 @@ package net.myblog.login.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-
-import java.util.UUID;
+import net.myBlog.common.BasicEntity;
 
 @Entity
 @Table(name="user_info")
-public class User {
-    @Id
-    @GeneratedValue(strategy=GenerationType.IDENTITY)
-    private Long id;
+public class User extends BasicEntity {
+
     private String email;
     @Column(name="user_password")
     private String password;
-    private boolean enabled = false;
+
+
+    private Boolean verified = false;
 
     @Column(name="user_name")
     private String userName;
 
-    @Column(name="verification_token")
-    private String verificationToken = UUID.randomUUID().toString();
-
-    public User(Long id, String email, String password, boolean enabled, String verificationToken,
-                String userName) {
-        this.id = id;
-        this.email = email;
-        this.password = password;
-        this.enabled = enabled;
-        this.verificationToken = verificationToken;
-        this.userName = userName;
-    }
+    /** メール認証用の6桁の数字コード。register時に照合し、登録完了後は破棄する。 */
+    @Column(name="verification_code")
+    private String verificationCode;
 
     public User()
     {
         ;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public String getEmail() {
@@ -66,16 +45,16 @@ public class User {
         this.password = password;
     }
 
-    public boolean isEnabled() {
-        return enabled;
+    public Boolean isVerified() {
+        return verified;
     }
 
-    public void setEnabled(boolean enabled) {
-        this.enabled = enabled;
+    public void setVerified(Boolean verified) {
+        this.verified = verified;
     }
 
-    public String getVerificationToken() {
-        return verificationToken;
+    public String getVerificationCode() {
+        return verificationCode;
     }
 
     public String getUserName()
@@ -88,7 +67,7 @@ public class User {
         this.userName = userName;
     }
 
-    public void setVerificationToken(String verificationToken) {
-        this.verificationToken = verificationToken;
+    public void setVerificationCode(String verificationCode) {
+        this.verificationCode = verificationCode;
     }
 }
