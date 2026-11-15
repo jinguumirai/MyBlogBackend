@@ -1,21 +1,20 @@
 package net.myblog.login.controller;
 
 import jakarta.validation.Valid;
+import net.myBlog.common.responses.ApiResponse;
 import net.myblog.login.controller.dto.LoginDto;
-import net.myblog.login.entity.User;
-import net.myblog.login.entity.UserRepository;
-import net.myblog.login.service.EmailService;
+import net.myblog.login.controller.dto.RegisterDto;
+import net.myblog.login.controller.dto.SendVerificationCodeDto;
+import net.myblog.login.service.LoginService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/register")
 public class RegistrationController {
     @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private EmailService emailService;
+    private LoginService loginService;
 
     @PostMapping("/login")
     public String login(@RequestBody @Valid LoginDto loginDto)
@@ -25,37 +24,32 @@ public class RegistrationController {
         return "Hello " + userName + ", your password is " + password;
     }
 
-    @PostMapping
-    public String register(String email, String password)
+    /**
+     * 登録用の6桁の数字認証コードを生成し、リクエストのメールアドレス宛に送信する。
+     * フロントエンドは { "email": "..." } をJSONで送信する。
+     *
+     * @param dto 送信先メールアドレス
+     * @return 送信結果(ApiResponse形式)
+     */
+    @PostMapping("/send-code")
+    public ResponseEntity<ApiResponse<String>> sendVerificationCode(@RequestBody @Valid SendVerificationCodeDto dto)
     {
-        if (userRepository.findByEmail(email).isPresent())
-        {
-            return "User has been registered.";
-        }
-
-        User user = new User();
-        user.setEmail(email);
-        user.setPassword(password);
-        userRepository.save(user);
-
-        emailService.sendVerificationEmail(user.getEmail(), user.getVerificationToken());
-        return "Certification mail has been sent to your email address.";
+        loginService.sendVerificationCode(dto.getEmail());
+        return ResponseEntity.ok(ApiResponse.success("Certification code has been sent to your email address."));
     }
 
-    @GetMapping("/verify")
-    public String verify(@RequestParam String token)
+    /**
+     * メールで受け取った6桁の数字コードを照合して本登録する。
+     * フロントエンドは { "email": "...", "password": "...", "verificationCode": "123456" } をJSONで送信する。
+     *
+     * @param dto 登録内容(メールアドレス・パスワード・認証コード)
+     * @return 登録結果(ApiResponse形式)
+     */
+    @PostMapping
+    public ResponseEntity<ApiResponse<String>> register(@RequestBody @Valid RegisterDto dto)
     {
-        var userOpt = userRepository.findByVerificationToken(token);
-        if (userOpt.isEmpty())
-        {
-            return "No effective token";
-        }
-
-        User user = userOpt.get();
-        user.setEnabled(true);
-        userRepository.save(user);
-
-        return "Registration has been completed.";
+        String message = loginService.register(dto.getEmail(), dto.getPassword(), dto.getVerificationCode());
+        return ResponseEntity.ok(ApiResponse.success(message));
     }
 
     @GetMapping("/test")

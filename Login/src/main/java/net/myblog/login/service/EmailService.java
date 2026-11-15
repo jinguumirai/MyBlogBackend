@@ -14,13 +14,16 @@ public class EmailService {
     @Value("${spring.mail.username}")
     private String from;
 
-    @Value("${app.web-url}")
-    private String webUrl;
-
-    public void sendVerificationEmail(String to, String token) {
+    /**
+     * 登録用の6桁の数字コードをメールで送信する。
+     *
+     * @param to   送信先メールアドレス
+     * @param code メール本文に記載する6桁の数字コード
+     */
+    public void sendVerificationCodeEmail(String to, String code) {
         String subject = "Mail address certification";
-        String link = webUrl + "/verify?token=" + token;
-        String text = "Please click link to complete your registration: \n" + link;
+        String text = "Your certification code is: " + code + "\n"
+                + "Please enter this 6-digit code in the registration form to complete your registration.";
 
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(to);
