@@ -7,6 +7,16 @@ This is a simple blog backend project.
 生成(署名)は認証サービス(Login)の `net.myblog.login.service.AuthService` だけが行い、
 検証は全マイクロサービスが共通ライブラリを利用して行う。
 
+署名アルゴリズムは **RS256(RSA 2048bit以上)** を使用する。
+鍵はPKCS#8形式の秘密鍵(`-----BEGIN PRIVATE KEY-----`)と
+X.509 SubjectPublicKeyInfo形式の公開鍵(`-----BEGIN PUBLIC KEY-----`)のPEMファイルを配置する。
+
+```bash
+# 秘密鍵と公開鍵の生成例(2048bit RSA)
+openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:2048 -out private_key.pem
+openssl rsa -in private_key.pem -pubout -out public_key.pem
+```
+
 ### 他のサービスでの利用手順
 
 1. `pom.xml` に CommonLib を依存追加する

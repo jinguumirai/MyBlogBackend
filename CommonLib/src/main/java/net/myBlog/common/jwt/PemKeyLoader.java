@@ -21,16 +21,16 @@ public final class PemKeyLoader {
     }
 
     /**
-     * PEM形式のEC公開鍵(X.509 SubjectPublicKeyInfo)を読み込み、{@link PublicKey}を返す。
+     * PEM形式のRSA公開鍵(X.509 SubjectPublicKeyInfo)を読み込み、{@link PublicKey}を返す。
      *
      * @param resource PEMファイルの場所(classpath:/file:など)
-     * @return EC公開鍵
+     * @return RSA公開鍵
      * @throws IllegalStateException 読み込みに失敗した場合
      */
-    public static PublicKey loadEcPublicKey(Resource resource) {
+    public static PublicKey loadRsaPublicKey(Resource resource) {
         try {
             byte[] der = readPem(resource, "PUBLIC KEY");
-            return KeyFactory.getInstance("EC").generatePublic(new X509EncodedKeySpec(der));
+            return KeyFactory.getInstance("RSA").generatePublic(new X509EncodedKeySpec(der));
         } catch (Exception e) {
             throw new IllegalStateException("JWT公開鍵の読み込みに失敗しました: " + resource, e);
         }
@@ -40,7 +40,7 @@ public final class PemKeyLoader {
      * PEMファイルからヘッダー/フッターを除いたDERバイト列を取り出す。
      *
      * @param resource PEMファイルの場所
-     * @param type     ヘッダーに書かれた鍵種別(例: "PUBLIC KEY", "EC PRIVATE KEY")
+     * @param type     ヘッダーに書かれた鍵種別(例: "PUBLIC KEY", "PRIVATE KEY")
      * @return DERバイト列
      * @throws IOException PEMの形式が不正な場合
      */

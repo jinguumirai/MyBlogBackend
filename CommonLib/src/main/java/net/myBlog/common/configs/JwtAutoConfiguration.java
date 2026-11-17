@@ -37,6 +37,6 @@ public class JwtAutoConfiguration {
     @ConditionalOnMissingBean(JwtTokenVerifier.class)
     @ConditionalOnProperty(prefix = "jwt", name = "public-key-path")
     public JwtTokenVerifier jwtTokenVerifier(JwtProperties jwtProperties) {
-        return new JwtTokenVerifier(PemKeyLoader.loadEcPublicKey(jwtProperties.getPublicKeyPath()));
+        return new JwtTokenVerifier(PemKeyLoader.loadRsaPublicKey(jwtProperties.getPublicKeyPath()));
     }
 }
